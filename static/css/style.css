@@ -1,0 +1,306 @@
+/* Global Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background-color: #fefefe;
+  color: #333;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+
+/* Header */
+.header {
+  text-align: center;
+  background-color: palevioletred;
+  color: white;
+  padding: 40px 20px;
+  position: relative;
+}
+
+
+.controls-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+#live-datetime {
+  font-size: 14px;
+  font-weight: bold;
+  color: #666;
+}
+
+body[data-theme="dark"] #live-datetime {
+  color: #ccc;
+}
+
+#todayDate {
+  font-size: 16px;
+  font-weight: bold;
+  color: palevioletred;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+body[data-theme="dark"] #todayDate {
+  color: #ff8fa3;
+}
+
+/* Main Content */
+.content {
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+}
+
+h1, h2 {
+  margin-bottom: 10px;
+}
+
+p {
+  margin-bottom: 15px;
+  line-height: 1.6;
+  text-align: justify;
+}
+
+.journal-form {
+  background: #f9f9f9;
+  padding: 25px;
+  border-radius: 10px;
+  margin: 20px 0;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.journal-form:hover {
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+.journal-form h2 {
+  color: palevioletred;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.journal-form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #333;
+}
+
+.journal-form input[type="text"] {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.journal-form input[type="text"]:focus {
+  outline: none;
+  border-color: palevioletred;
+  box-shadow: 0 0 0 3px rgba(219, 112, 147, 0.1);
+}
+
+.journal-form textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-family: inherit;
+  resize: vertical;
+  font-size: 14px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.journal-form textarea:focus {
+  outline: none;
+  border-color: palevioletred;
+  box-shadow: 0 0 0 3px rgba(219, 112, 147, 0.1);
+}
+
+.journal-form input[type="submit"],
+.journal-form input[type="reset"],
+.journal-form input[type="button"] {
+  background: palevioletred;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 8px 8px 8px 0;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.journal-form input[type="submit"]:hover,
+.journal-form input[type="reset"]:hover,
+.journal-form input[type="button"]:hover {
+  background: #d85a85;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.journal-form input[type="submit"]:active,
+.journal-form input[type="reset"]:active,
+.journal-form input[type="button"]:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+button {
+  background: palevioletred;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-right: 8px;
+  margin-top: 5px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+button:hover:not(:disabled) {
+  background: #d85a85;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.journal-form input:valid,
+.journal-form textarea:valid {
+  border-color: #4CAF50;
+}
+
+.journal-form input:invalid:not(:placeholder-shown),
+.journal-form textarea:invalid:not(:placeholder-shown) {
+  border-color: #ff6b6b;
+}
+
+#viewAll {
+  background: #f0f0f0;
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 15px;
+  min-height: 60px;
+  transition: background-color 0.3s ease;
+}
+
+body[data-theme="dark"] #viewAll {
+  background: #2a2a2a;
+  color: #e0e0e0;
+}
+
+section {
+  margin: 25px 0;
+  padding: 20px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+section:nth-child(even) {
+  background: rgba(219, 112, 147, 0.03);
+}
+
+body[data-theme="dark"] section:nth-child(even) {
+  background: rgba(255, 143, 163, 0.05);
+}
+
+/* Feature Buttons */
+.feature-btn {
+  background: #3498db;
+  font-size: 12px;
+  padding: 8px 12px;
+}
+
+.feature-btn:hover {
+  background: #2980b9;
+}
+
+/* Action Buttons for Delete */
+.action-btn {
+  background: #95a5a6;
+  color: white;
+  border: none;
+  padding: 5px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+  margin-left: 5px;
+  transition: all 0.2s ease;
+}
+
+.delete-btn:hover {
+  background: #e74c3c;
+}
+
+/* Reflection Items */
+.reflection-item {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.reflection-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Extra Features Section */
+.extra-features {
+  margin: 20px 0;
+  padding: 15px;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+@media screen and (max-width: 600px) {
+  .header {
+    padding: 20px;
+  }
+  .controls-bar {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .journal-form {
+    padding: 15px;
+    margin: 10px 0;
+  }
+  
+  .journal-form input[type="submit"],
+  .journal-form input[type="reset"],
+  .journal-form input[type="button"] {
+    width: 100%;
+    margin: 5px 0;
+  }
+  
+  .feature-btn, .action-btn {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+}

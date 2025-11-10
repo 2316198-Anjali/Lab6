@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reflective Journal</title>
+    <meta name="theme-color" content="#2196F3">
+    <meta name="description" content="A Progressive Web App for keeping learning reflections">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body onload="init()">
+    <div class="controls-bar">
+        <div id="live-datetime"></div>
+    </div>
+
+    <header class="header">
+        <h1>Reflective Journal</h1>
+        <p>Share your learning reflections and progress</p>
+    </header>
+
+    <main class="content">
+        <p id="todayDate" style="text-align: center; font-size: 18px; font-weight: bold; color: palevioletred; margin-bottom: 20px;"></p>
+        
+        <div class="journal-form">
+            <h2>Add New Reflection</h2>
+            <form name="myForm" onsubmit="return checkReflection()" novalidate>
+                <label for="fname">Name: <span style="color: red;">*</span></label><br>
+                <input type="text" id="fname" name="fname" size="53" required 
+                       placeholder="Enter your full name"
+                       title="Please enter your name (required)"><br><br>
+                
+                <label for="reflection">Reflection: <span style="color: red;">*</span></label><br>
+                <textarea id="reflection" name="reflection" minlength="10" maxlength="1000"
+                    placeholder="What did you learn this week? What did you find challenging? (minimum 10 characters)" 
+                    rows="4" cols="50" required 
+                    title="Write your reflection (10-1000 characters)"></textarea><br><br>
+                
+                <input type="submit" value="Submit Reflection">
+                <input type="reset" value="Reset Form">
+                <input type="button" value="Clear All Entries" onclick="clearAllReflections()">
+            </form>
+        </div>
+
+        <div class="extra-features">
+            <h3>Extra Features</h3>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
+                <button onclick="exportReflections()" class="feature-btn">Export JSON</button>
+            </div>
+        </div>
+        <section style="margin: 20px 0;">
+            <h2>Previous Reflections</h2>
+            <div id="viewAll" style="min-height: 60px;"></div>
+        </section>
+    </main>
+    <script src="{{ url_for('static', filename='js/form4JS.js') }}"></script>
+</body>
+</html>
