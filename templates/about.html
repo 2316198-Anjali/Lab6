@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Me</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="controls-bar">
+        <div id="live-datetime"></div>
+        <div id="onlineStatus" class="status-indicator"></div>
+        <button id="installBtn" class="install-button" style="display: none;" onclick="handleInstallClick()">
+            Install App
+        </button>
+    </div>
+
+    <header class="header">
+        <h1>About Me</h1>
+        <p>Personal profile and background</p>
+    </header>
+
+
+    <div class="content">
+        <div class="row">
+            <aside class="side">
+                <h2>Profile</h2>
+                <p><strong>Name:</strong> Anjali</p>
+                <p><strong>Course:</strong> Mobile Application Development</p>
+                <p><strong>Institution:</strong> University for the Creative Arts, UK</p>
+            </aside>
+
+            <main class="main">
+                <h2>About My Journey</h2>
+                <p>
+                    I am a passionate learner exploring the world of
+                    creative computing and mobile application development.
+                </p>
+
+                <h3>My Interests</h3>
+                <ul>
+                    <li>Web and Mobile App Design</li>
+                    <li>Creative UI/UX Development</li>
+                    <li>Interactive User Experiences</li>
+                    <li>Responsive Web Design</li>
+                </ul>
+
+                <h3>Goals</h3>
+                <p>
+                    Through this unit, I aim to build a strong
+                    foundation in HTML, CSS, and responsive design.
+                </p>
+                <p>
+                    I'm particularly interested in creating accessible and
+                    user-friendly web applications that work seamlessly across
+                    different devices and platforms.
+                </p>
+            </main>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/form4JS.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/install.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="controls-bar">
+        <div id="live-datetime"></div>
+        <div id="onlineStatus" class="status-indicator"></div>
+        <button id="installBtn" class="install-button" style="display: none;" onclick="handleInstallClick()">
+            Install App
+        </button>
+    </div>
+
+    <header class="header">
+        <h1>My Projects</h1>
+        <p>Showcasing my creative and technical work</p>
+    </header>
+
+    <main class="content">
+        <section>
+            <h2>Coming Soon</h2>
+            <p>
+                Projects will appear here as I continue learning
+                throughout the unit.
+            </p>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/form4JS.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/install.js') }}"></script>
+</body>
+</html>

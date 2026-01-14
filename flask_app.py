@@ -29,10 +29,40 @@ def save_reflections(reflections):
 
 # Routes
 @app.route("/")
+def journal():
+    """Journal page route"""
+    return render_template("journal.html")
+
+@app.route("/projects")
+def projects():
+    """Projects page route"""
+    return render_template("projects.html")
+
+@app.route("/about")
+def about():
+    """About page route"""
+    return render_template("about.html")
+
+@app.route("/index")
 def index():
     """Homepage route - serves the main form"""
-    return render_template("form4.html")
+    return render_template("index.html")
 
+# PWA Routes
+@app.route('/manifest.json')
+def manifest():
+    """Serve manifest.json from static folder"""
+    return app.send_static_file('manifest.json')
+
+@app.route('/sw.js')
+def service_worker():
+    """Serve service worker with correct headers"""
+    response = app.send_static_file('js/sw.js')
+    response.headers['Content-Type'] = 'application/javascript'
+    response.headers['Service-Worker-Allowed'] = '/'
+    return response
+
+# API Routes
 @app.route("/api/reflections", methods=["GET"])
 def get_reflections():
     """GET /reflections: Returns reflections.json as JSON"""
