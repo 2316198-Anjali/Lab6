@@ -1,5 +1,5 @@
 // Service Worker for Reflective Journal PWA
-const CACHE_NAME = 'journal-cache-v6'; // Incremented version to force update
+const CACHE_NAME = 'journal-cache-v7'; // Incremented version to force update
 const PRECACHE = [
   '/',
   '/static/css/style.css',
