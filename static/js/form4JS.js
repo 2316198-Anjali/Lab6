@@ -1,5 +1,4 @@
-
-const navTemplate = `
+﻿const navTemplate = `
   <nav class="navbar">
     <ul>
         <li><a href="/index" data-page="index">Home</a></li>
@@ -78,7 +77,11 @@ function initializeDateTime() {
     setInterval(updateDateTime, 1000);
 }
 
-async function checkReflection() {
+async function checkReflection(event) {
+    if (event) {
+        event.preventDefault();
+    }
+
     const name = document.getElementById("fname").value.trim();
     const reflection = document.getElementById("reflection").value.trim();
     
@@ -92,13 +95,26 @@ async function checkReflection() {
         return false;
     }
     
+    // Get canvas image as data URL only if something is drawn
+    let canvasImage = null;
+    if (canvas && ctx) {
+        const blank = document.createElement('canvas');
+        blank.width = canvas.width;
+        blank.height = canvas.height;
+        const isBlank = canvas.toDataURL() === blank.toDataURL();
+        if (!isBlank) {
+            canvasImage = canvas.toDataURL('image/png');
+        }
+    }
+
     const entry = {
         id: Date.now().toString(),
         name,
         reflection,
         date: new Date().toDateString(),
         timestamp: new Date().toISOString(),
-        synced: false
+        synced: false,
+        canvasImage: canvasImage
     };
     
     try {
@@ -106,7 +122,11 @@ async function checkReflection() {
             const response = await fetch("/api/reflections", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name: entry.name, reflection: entry.reflection })
+                body: JSON.stringify({
+                    name: entry.name,
+                    reflection: entry.reflection,
+                    canvasImage: entry.canvasImage
+                })
             });
             
             if (response.ok) {
@@ -117,8 +137,8 @@ async function checkReflection() {
                     await offlineDB.saveReflection(serverReflection);
                 }
                 
-                document.myForm.reset();
-                alert('? Reflection submitted successfully!');
+                resetJournalForm();
+                alert('Reflection submitted successfully!');
                 await submitted();
             } else {
                 throw new Error('Server error');
@@ -128,11 +148,11 @@ async function checkReflection() {
                 await offlineDB.saveReflection(entry);
                 await offlineDB.addToSyncQueue('POST', entry);
                 
-                document.myForm.reset();
-                alert('?? Saved offline! Will sync when online.');
+                resetJournalForm();
+                alert('Saved offline! Will sync when online.');
                 await submitted();
             } else {
-                alert('? Cannot save offline. IndexedDB not available.');
+                alert('Cannot save offline. IndexedDB not available.');
             }
         }
     } catch (error) {
@@ -143,15 +163,15 @@ async function checkReflection() {
                 await offlineDB.saveReflection(entry);
                 await offlineDB.addToSyncQueue('POST', entry);
                 
-                document.myForm.reset();
-                alert('?? Saved offline! Will sync when online.');
+                resetJournalForm();
+                alert('Saved offline! Will sync when online.');
                 await submitted();
             } catch (dbError) {
                 console.error('Failed to save offline:', dbError);
-                alert('? Failed to save reflection');
+                alert('Failed to save reflection');
             }
         } else {
-            alert('? Failed to submit reflection. Please try again.');
+            alert('Failed to submit reflection. Please try again.');
         }
     }
     
@@ -186,7 +206,7 @@ async function submitted() {
         } else {
             if (typeof offlineDB !== 'undefined') {
                 reflections = await offlineDB.getAllReflections();
-                console.log('?? Loaded reflections from IndexedDB (offline)');
+                console.log('Loaded reflections from IndexedDB (offline)');
             } else {
                 reflections = [];
             }
@@ -205,7 +225,7 @@ async function submitted() {
         if (typeof offlineDB !== 'undefined') {
             try {
                 reflections = await offlineDB.getAllReflections();
-                console.log('?? Loaded reflections from IndexedDB (fallback)');
+                console.log('Loaded reflections from IndexedDB (fallback)');
                 
                 for (let r of reflections) {
                     output += createReflectionHTML(r);
@@ -227,8 +247,25 @@ async function submitted() {
 
 function createReflectionHTML(r) {
     const syncBadge = r.synced === false ? 
-        ' <span style="background: #ff9800; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px;">?? Pending</span>' : 
+        ' <span style="background: #ff9800; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px;">Pending</span>' : 
         '';
+
+    console.log('Reflection canvas image:', r.canvas_image);
+    
+    // Prefer server-saved file, fall back to base64 for unsynced items
+    let imgSrc = null;
+    if (r.canvas_image) {
+        imgSrc = `/static/canvas_images/${r.canvas_image}`;
+    } else if (r.canvasImage) {
+        imgSrc = r.canvasImage; // base64 data URL
+    }
+
+    const canvasImgHtml = imgSrc ? `
+        <div style="margin-top: 8px;">
+            <img src="${imgSrc}" alt="Canvas reflection"
+                 style="max-width:100%; border:1px solid #ddd; border-radius:4px;">
+        </div>
+    ` : '';
     
     return `
         <div class="reflection-item" style="margin-bottom: 15px; padding: 15px; border-left: 3px solid palevioletred; background: #f9f9f9; border-radius: 4px;">
@@ -237,6 +274,7 @@ function createReflectionHTML(r) {
                     <b>${r.name}</b>${syncBadge}<br>
                     <i>${r.date}</i><br>
                     <span class="reflection-content">${r.reflection}</span>
+                    ${canvasImgHtml}
                 </div>
                 <div style="margin-left: 10px;">
                     <button onclick="deleteReflection('${r.id}')" class="action-btn delete-btn" title="Delete">Delete</button>
@@ -320,14 +358,15 @@ function showMessage(message) {
 // Function to initialize everything
 function initializePage() {
     insertNavigation();
+    initCanvas();
     
     // Initialize offline sync when online
     window.addEventListener('online', async () => {
-        console.log('?? Back online!');
+        console.log('Back online!');
         if (typeof offlineDB !== 'undefined') {
             const queue = await offlineDB.getSyncQueue();
             if (queue.length > 0) {
-                console.log(`?? Syncing ${queue.length} pending items...`);
+                console.log(`Syncing ${queue.length} pending items...`);
                 alert(`Syncing ${queue.length} pending reflections...`);
                 await syncPendingData();
             }
@@ -335,7 +374,7 @@ function initializePage() {
     });
     
     window.addEventListener('offline', () => {
-        console.log('?? Gone offline');
+        console.log('Gone offline');
         alert('You are offline. New reflections will be saved locally.');
     });
     
@@ -354,13 +393,13 @@ async function syncPendingData() {
         for (const item of queue) {
             try {
                 if (item.type === 'POST') {
-                    // Sync new reflection
                     const response = await fetch('/api/reflections', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             name: item.data.name,
-                            reflection: item.data.reflection
+                            reflection: item.data.reflection,
+                            canvasImage: item.data.canvasImage || null
                         })
                     });
                     
@@ -372,7 +411,7 @@ async function syncPendingData() {
                         await offlineDB.saveReflection(serverReflection);
                         await offlineDB.removeFromSyncQueue(item.queueId);
                         
-                        console.log('? Synced:', item.data.name);
+                        console.log('Synced:', item.data.name);
                     }
                 } else if (item.type === 'DELETE') {
                     const response = await fetch(`/api/reflections/${item.data.id}`, {
@@ -381,7 +420,7 @@ async function syncPendingData() {
                     
                     if (response.ok) {
                         await offlineDB.removeFromSyncQueue(item.queueId);
-                        console.log('? Synced deletion:', item.data.id);
+                        console.log('Synced deletion:', item.data.id);
                     }
                 }
             } catch (error) {
@@ -389,13 +428,263 @@ async function syncPendingData() {
             }
         }
         
-        alert('? All data synced successfully!');
-        await submitted(); // Refresh display
+        alert('All data synced successfully!');
+        await submitted();
         
     } catch (error) {
         console.error('Sync failed:', error);
-        alert('? Sync failed. Will retry later.');
+        alert('Sync failed. Will retry later.');
     }
+}
+
+// === Creative Canvas (drawing pad) ===
+let canvas, ctx;
+let drawing = false;
+let lastX = 0;
+let lastY = 0;
+let startX = 0;
+let startY = 0;
+let currentShape = 'free';
+let brushSize = 3;
+let brushColor = '#db7093';
+let previewImage = null; // for shape preview
+
+function resetJournalForm() {
+    const form = document.forms['myForm'];
+    if (!form) return;
+
+    // Manually clear ONLY the text inputs / textarea
+    const nameInput = document.getElementById('fname');
+    const reflectionInput = document.getElementById('reflection');
+
+    if (nameInput) nameInput.value = '';
+    if (reflectionInput) reflectionInput.value = '';
+
+    // Reset only the text fields / textarea
+    //form.reset();
+
+    // Clear the canvas drawing but KEEP UI settings (size preset, brush slider value, mode dropdown)
+    clearCanvas();
+}
+
+function initCanvas() {
+    canvas = document.getElementById('reflectionCanvas');
+    if (!canvas) return; // Not on this page
+
+    ctx = canvas.getContext('2d');
+    ctx.lineWidth = brushSize;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = brushColor;
+
+    const colorInput = document.getElementById('canvasColor');
+    const sizeInput = document.getElementById('canvasBrushSize');
+    const sizeLabel = document.getElementById('brushSizeValue');
+    const shapeSelect = document.getElementById('canvasShape');
+    const sizePreset = document.getElementById('canvasSizePreset');
+
+    if (colorInput) {
+        brushColor = colorInput.value || brushColor;
+        ctx.strokeStyle = brushColor;
+        colorInput.addEventListener('input', () => {
+            brushColor = colorInput.value;
+            ctx.strokeStyle = brushColor;
+        });
+    }
+
+    if (sizeInput) {
+        brushSize = parseInt(sizeInput.value, 10) || brushSize;
+        ctx.lineWidth = brushSize;
+        if (sizeLabel) sizeLabel.textContent = brushSize;
+        sizeInput.addEventListener('input', () => {
+            brushSize = parseInt(sizeInput.value, 10) || 1;
+            ctx.lineWidth = brushSize;
+            if (sizeLabel) sizeLabel.textContent = brushSize;
+        });
+    }
+
+    if (shapeSelect) {
+        currentShape = shapeSelect.value;
+        shapeSelect.addEventListener('change', () => {
+            currentShape = shapeSelect.value;
+        });
+    }
+
+    // Initialize size preset to match current canvas size, if possible
+    if (sizePreset) {
+        const currentValue = `${canvas.width}x${canvas.height}`;
+        const options = Array.from(sizePreset.options).map(o => o.value);
+        if (options.includes(currentValue)) {
+            sizePreset.value = currentValue;
+        } else {
+            sizePreset.value = '500x300';
+        }
+    }
+
+    // Mouse events
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', endDraw);
+    canvas.addEventListener('mouseleave', endDraw);
+
+    // Touch events (for mobile)
+    canvas.addEventListener('touchstart', startDrawTouch, { passive: false });
+    canvas.addEventListener('touchmove', drawTouch, { passive: false });
+    canvas.addEventListener('touchend', endDrawTouch);
+}
+
+function resizeCanvasFromPreset() {
+    if (!canvas || !ctx) return;
+    const sizePreset = document.getElementById('canvasSizePreset');
+    if (!sizePreset) return;
+
+    const value = sizePreset.value; // e.g. "600x400"
+    const [wStr, hStr] = value.split('x');
+    const newW = parseInt(wStr, 10);
+    const newH = parseInt(hStr, 10);
+    if (isNaN(newW) || isNaN(newH)) return;
+
+    canvas.width = newW;
+    canvas.height = newH;
+
+    ctx.lineWidth = brushSize;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = brushColor;
+}
+
+function getCanvasPos(event) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top
+    };
+}
+
+function startDraw(e) {
+    drawing = true;
+    const pos = getCanvasPos(e);
+    lastX = pos.x;
+    lastY = pos.y;
+    startX = pos.x;
+    startY = pos.y;
+
+    if (currentShape !== 'free') {
+        // Save current canvas for shape preview
+        previewImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    }
+}
+
+function draw(e) {
+    if (!drawing) return;
+    const pos = getCanvasPos(e);
+
+    if (currentShape === 'free') {
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.strokeStyle = brushColor;
+        ctx.lineWidth = brushSize;
+        ctx.stroke();
+        lastX = pos.x;
+        lastY = pos.y;
+    } else {
+        // Shape preview
+        if (previewImage) {
+            ctx.putImageData(previewImage, 0, 0);
+        }
+        ctx.strokeStyle = brushColor;
+        ctx.lineWidth = brushSize;
+
+        if (currentShape === 'rect') {
+            const w = pos.x - startX;
+            const h = pos.y - startY;
+            ctx.strokeRect(startX, startY, w, h);
+        } else if (currentShape === 'circle') {
+            const radius = Math.sqrt(Math.pow(pos.x - startX, 2) + Math.pow(pos.y - startY, 2));
+            ctx.beginPath();
+            ctx.arc(startX, startY, radius, 0, Math.PI * 2);
+            ctx.stroke();
+        } else if (currentShape === 'line') {
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+        }
+    }
+}
+
+function endDraw() {
+    drawing = false;
+    previewImage = null;
+}
+
+function startDrawTouch(e) {
+    e.preventDefault();
+    if (e.touches.length === 0) return;
+    drawing = true;
+    const touch = e.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    lastX = x;
+    lastY = y;
+    startX = x;
+    startY = y;
+
+    if (currentShape !== 'free') {
+        previewImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    }
+}
+
+function drawTouch(e) {
+    e.preventDefault();
+    if (!drawing || e.touches.length === 0) return;
+    const touch = e.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+
+    if (currentShape === 'free') {
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(x, y);
+        ctx.strokeStyle = brushColor;
+        ctx.lineWidth = brushSize;
+        ctx.stroke();
+        lastX = x;
+        lastY = y;
+    } else {
+        if (previewImage) {
+            ctx.putImageData(previewImage, 0, 0);
+        }
+        ctx.strokeStyle = brushColor;
+        ctx.lineWidth = brushSize;
+
+        if (currentShape === 'rect') {
+            const w = x - startX;
+            const h = y - startY;
+            ctx.strokeRect(startX, startY, w, h);
+        } else if (currentShape === 'circle') {
+            const radius = Math.sqrt(Math.pow(x - startX, 2) + Math.pow(y - startY, 2));
+            ctx.beginPath();
+            ctx.arc(startX, startY, radius, 0, Math.PI * 2);
+            ctx.stroke();
+        } else if (currentShape === 'line') {
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(x, y);
+            ctx.stroke();
+        }
+    }
+}
+
+function endDrawTouch() {
+    drawing = false;
+    previewImage = null;
+}
+
+function clearCanvas() {
+    if (!canvas || !ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 if (document.readyState === 'loading') {

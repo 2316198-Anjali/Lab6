@@ -54,5 +54,29 @@
         "date": "Tue Jan 13 2026",
         "reflection": "llllllllllllllllllllllllllllllllllllllllpppppppppppppp",
         "timestamp": "2026-01-13T23:03:45.753316"
+    },
+    {
+        "id": "20260116200026",
+        "name": "canvas test",
+        "date": "Fri Jan 16 2026",
+        "reflection": "this is testing reflection with a canvas",
+        "timestamp": "2026-01-16T20:00:26.584348",
+        "canvas_image": "canvas_20260116200026583795.png"
+    },
+    {
+        "id": "20260116201026",
+        "name": "NISAR AHMED BHATTI",
+        "date": "Fri Jan 16 2026",
+        "reflection": "sdfgsdfgsdfgsdfgsdfgsdfgsdfgsdfgsdfgsdfgsdfg",
+        "timestamp": "2026-01-16T20:10:26.436605",
+        "canvas_image": null
+    },
+    {
+        "id": "20260117163542",
+        "name": "asdfasdfasdf",
+        "date": "Sat Jan 17 2026",
+        "reflection": "asdfasdfasdfasdfasdfdsf",
+        "timestamp": "2026-01-17T16:35:42.195258",
+        "canvas_image": "canvas_20260117163542194396.png"
     }
 ]

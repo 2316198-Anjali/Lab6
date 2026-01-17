@@ -26,11 +26,13 @@
     </header>
 
     <main class="content">
+       
+
         <p id="todayDate" style="text-align: center; font-size: 18px; font-weight: bold; color: palevioletred; margin-bottom: 20px;"></p>
 
         <div class="journal-form">
             <h2>Add New Reflection</h2>
-            <form name="myForm" onsubmit="return checkReflection()" novalidate>
+            <form name="myForm" onsubmit="checkReflection(event)" novalidate>
                 <label for="fname">Name: <span style="color: red;">*</span></label><br>
                 <input type="text" id="fname" name="fname" size="53" required
                        placeholder="Enter your full name"><br><br>
@@ -39,9 +41,48 @@
                 <textarea id="reflection" name="reflection" minlength="10" maxlength="1000"
                           placeholder="What did you learn this week? (minimum 10 characters)"
                           rows="4" cols="50" required></textarea><br><br>
+                <section style="margin-top: 20px;">
+                    <h2>Creative Canvas</h2>
+                    <p>Draw a visual reflection for this week:</p>
+
+                    <div style="border: 1px solid #ccc; padding: 10px; border-radius: 8px;">
+                        <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:10px;padding:5px;border:2px solid black">
+                            <label for="canvasBrushSize" style="font-size:14px;">Brush size:</label>
+                            <input type="range" id="canvasBrushSize" min="1" max="20" value="3">
+                            <span id="brushSizeValue" style="font-size:13px; min-width:24px;">3</span>
+
+                            <label for="canvasColor" style="font-size:14px; margin-left:10px;">Color:</label>
+                            <input type="color" id="canvasColor" value="#db7093" style="width:40px; height:30px; padding:0; border:none; background:transparent;">
+
+                            <label for="canvasShape" style="font-size:14px; margin-left:10px;">Mode:</label>
+                            <select id="canvasShape">
+                                <option value="free">Freehand</option>
+                                <option value="rect">Rectangle</option>
+                                <option value="circle">Circle</option>
+                                <option value="line">Line</option>
+                            </select>
+                            <div>
+                                <label for="canvasSizePreset" style="font-size:14px; margin-left:10px;">Canvas size:</label>
+                                <select id="canvasSizePreset" onchange="resizeCanvasFromPreset()">
+                                    <option value="500x300">500 x 300 (default)</option>
+                                    <option value="600x400">600 x 400</option>
+                                    <option value="800x500">800 x 500</option>
+                                    <option value="400x250">400 x 250</option>
+                                </select>
+
+                                <button type="button" onclick="clearCanvas()" style="margin-left:auto;">Clear Canvas</button>
+                            </div>
+                        </div>
+
+                        <canvas id="reflectionCanvas" width="500" height="300"
+                                style="border:1px solid #ddd; border-radius:4px; touch-action:none; display:block; max-width:100%;">
+                            Your browser does not support the HTML5 canvas tag.
+                        </canvas>
+                    </div>
+                </section>
 
                 <input type="submit" value="Submit Reflection">
-                <input type="reset" value="Reset Form">
+                <input type="button" value="Reset Form" onclick="resetJournalForm()">
                 <input type="button" value="Clear All Entries" onclick="clearAllReflections()">
             </form>
         </div>
