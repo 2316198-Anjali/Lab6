@@ -1,4 +1,4 @@
-<img width="2647" height="520" alt="image" src="https://github.com/user-attachments/assets/2a2b9987-42fc-4126-8547-92de06eb762b" /># My Learning Journal (PWA)
+## Introduction
 
 This learning Journal app is a small progressive web application, built with Flask, HTML, CSS and JavaScript, it let users to record their weekly reflections, and the app saves these to a online json file using python APIs.
 
