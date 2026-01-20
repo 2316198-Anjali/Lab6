@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, render_template
 import json
 import os
 from datetime import datetime
+import base64
 
 # Creates the Flask application object
 app = Flask(__name__)
@@ -77,12 +78,33 @@ def add_reflection():
     if not data or 'name' not in data or 'reflection' not in data:
         return jsonify({"error": "Name and reflection are required"}), 400
     
+    canvas_image_data = data.get("canvasImage")
+    image_filename = None
+
+    if canvas_image_data and isinstance(canvas_image_data, str) and canvas_image_data.startswith("data:image/png;base64,"):
+        try:
+            header, encoded = canvas_image_data.split(",", 1)
+            image_bytes = base64.b64decode(encoded)
+
+            images_dir = os.path.join(BASE_DIR, "static", "canvas_images")
+            os.makedirs(images_dir, exist_ok=True)
+
+            image_filename = f"canvas_{datetime.now().strftime('%Y%m%d%H%M%S%f')}.png"
+            image_path = os.path.join(images_dir, image_filename)
+
+            with open(image_path, "wb") as img_file:
+                img_file.write(image_bytes)
+        except Exception as e:
+            print("Failed to save canvas image:", e)
+            image_filename = None
+    
     new_reflection = {
         "id": datetime.now().strftime("%Y%m%d%H%M%S"),
         "name": data["name"],
         "date": datetime.now().strftime("%a %b %d %Y"),
         "reflection": data["reflection"],
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
+        "canvas_image": image_filename
     }
     
     reflections = load_reflections()
